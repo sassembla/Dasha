@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using DashaCore;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -305,6 +306,11 @@ namespace AutoyaFramework.Connections.HTTP
                     }
                 }
 
+                if (Dasha.TryPullHook(url, succeeded, failed))
+                {
+                    yield break;
+                }
+
                 var p = request.SendWebRequest();
 
                 while (!p.isDone)
@@ -335,10 +341,12 @@ namespace AutoyaFramework.Connections.HTTP
 
                         if (200 <= responseCode && responseCode <= 299)
                         {
+                            Dasha.Scan(url, bytes);
                             succeeded(connectionId, responseCode, responseHeaders, bytes);
                         }
                         else
                         {
+                            Dasha.Scan(url, bytes);
                             failed(connectionId, responseCode, BackyardSettings.HTTP_CODE_ERROR_SUFFIX + Encoding.UTF8.GetString(bytes), responseHeaders);
                         }
                         break;
@@ -349,6 +357,7 @@ namespace AutoyaFramework.Connections.HTTP
                             responseCode = BackyardSettings.HTTP_NETWORK_ERROR_AND_STATUS_OK_CODE;
                         }
 
+                        Dasha.Scan(url, Encoding.UTF8.GetBytes(request.error));
                         failed(connectionId, responseCode, request.error, responseHeaders);
                         break;
                 }
