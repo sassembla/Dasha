@@ -8,3 +8,5 @@ Temp/*
 Assembly-CSharp-Editor.csproj
 
 Dasha.sln
+.DS_Store
+*.csproj
