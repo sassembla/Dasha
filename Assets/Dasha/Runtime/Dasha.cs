@@ -10,7 +10,7 @@ namespace DashaCore
     {
         private string DASHA_DATA_PATH;
         private static Dasha @this;
-        private ConcurrentDictionary<string, byte[]> hookDict = new ConcurrentDictionary<string, byte[]>();
+        private ConcurrentDictionary<string, Action<object[]>> hookDict = new ConcurrentDictionary<string, Action<object[]>>();
 
         static Dasha()
         {
@@ -26,7 +26,7 @@ namespace DashaCore
         }
 
 
-        internal static void AddHook(string url, string hookedDataID)
+        internal static void AddHook(string url, string hookedDataID, Action<byte[], object[]> onHooked)
         {
             byte[] data = null;
             var path = GetDataPathFromDataID(hookedDataID);
@@ -43,7 +43,7 @@ namespace DashaCore
                 throw new Exception("no data found, hookedDataID:" + hookedDataID + " is not exists in:" + path);
             }
 
-            @this.hookDict[url] = data;
+            @this.hookDict[url] = (object[] parameters) => { onHooked(data, parameters); };
         }
 
         internal static void RemoveHook(string url)
@@ -67,11 +67,10 @@ namespace DashaCore
                 return false;
             }
 
-            // TODO: このインターフェースの畳み込みをユーザー側に押し付けたいところ。この情報も記録できるといいか。確かに。
-            if (@this.hookDict.TryGetValue(url, out var data))
+            if (@this.hookDict.TryGetValue(url, out var onHooked))
             {
-                var successFunc = (Action<string, int, Dictionary<string, string>, byte[]>)inputs[0];
-                successFunc(url, 200, new Dictionary<string, string>(), data);
+                // 畳み込んで実行。
+                onHooked(inputs);
                 return true;
             }
 

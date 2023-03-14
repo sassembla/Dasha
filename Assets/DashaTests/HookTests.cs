@@ -7,6 +7,7 @@ using DashaCore;
 using System.IO;
 using UnityEngine;
 using System.Text;
+using System.Collections.Generic;
 
 /**
 	フック作成関連のテスト
@@ -43,7 +44,15 @@ public class HookTests : MiyamasuTestRunner
         var path = Dasha.GetDataPathFromDataID(hookedDataID);
         var expected = File.ReadAllBytes(path);
 
-        Dasha.AddHook(url, hookedDataID);
+        Dasha.AddHook(
+            url,
+            hookedDataID,
+            (data, handles) =>
+            {
+                var successFunc = (Action<string, int, Dictionary<string, string>, byte[]>)handles[0];
+                successFunc(url, 200, new Dictionary<string, string>(), data);
+            }
+        );
 
         var done = false;
         Autoya.Http_GetByBytes(
@@ -77,7 +86,15 @@ public class HookTests : MiyamasuTestRunner
         var path = Dasha.GetDataPathFromDataID(hookedDataID);
         var expected = File.ReadAllBytes(path);
 
-        Dasha.AddHook(url, hookedDataID);
+        Dasha.AddHook(
+            url,
+            hookedDataID,
+            (data, handles) =>
+            {
+                var successFunc = (Action<string, int, Dictionary<string, string>, byte[]>)handles[0];
+                successFunc(url, 200, new Dictionary<string, string>(), data);
+            }
+        );
         {
             var done = false;
             Autoya.Http_GetByBytes(
@@ -154,7 +171,15 @@ public class HookTests : MiyamasuTestRunner
             expected
         );
 
-        Dasha.AddHook(url, hookedDataID);
+        Dasha.AddHook(
+            url,
+            hookedDataID,
+            (data, handles) =>
+            {
+                var successFunc = (Action<string, int, Dictionary<string, string>, byte[]>)handles[0];
+                successFunc(url, 200, new Dictionary<string, string>(), data);
+            }
+        );
 
         var done = false;
         Autoya.Http_GetByBytes(
@@ -195,7 +220,15 @@ public class HookTests : MiyamasuTestRunner
             expected
         );
 
-        Dasha.AddHook(url, hookedDataID);
+        Dasha.AddHook(
+            url,
+            hookedDataID,
+            (data, handles) =>
+            {
+                var successFunc = (Action<string, int, Dictionary<string, string>, byte[]>)handles[0];
+                successFunc(url, 200, new Dictionary<string, string>(), data);
+            }
+        );
         {
             var done = false;
             Autoya.Http_GetByBytes(
