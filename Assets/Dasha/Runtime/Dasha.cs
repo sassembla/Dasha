@@ -19,10 +19,6 @@ namespace DashaCore
             @this = new Dasha();
         }
 
-        public static void PrepareHook(string url, Func<byte[], (bool, string, byte[])> onHooked)
-        {
-            @this.preHookDict[url] = onHooked;
-        }
 
         internal static void AddHook(string url, string hookedDataID)
         {
@@ -57,7 +53,8 @@ namespace DashaCore
             return Path.Combine(DASHA_DATA_PATH, hookedDataID);
         }
 
-
+        // TODO: この関数がconditionalになる。
+        // 通信をurlをキーとして奪い、ダミーのレスポンスを返す。
         internal static bool TryPullHook(string url, params object[] inputs)
         {
             if (!@this.hookDict.ContainsKey(url))
@@ -76,8 +73,27 @@ namespace DashaCore
             return false;
         }
 
+        // urlに対するデータを保存する。
+        internal static void Save(string hookDataID, string url, int code, Dictionary<string, string> responseHeader, byte[] hookData)
+        {
+            if (!Directory.Exists(DASHA_DATA_PATH))
+            {
+                Directory.CreateDirectory(DASHA_DATA_PATH);
+            }
+
+            var targetDataPath = GetDataPathFromDataID(hookDataID);
+
+            // TODO: 現在はidによってのみデータをidentifyしている。urlに対してフィルタできるようにすると、人が用意したやつを使える。responseHeaderとcodeも入れると良さそうではある。
+            using (var sw = new StreamWriter(targetDataPath))
+            {
+                sw.BaseStream.Write(hookData, 0, hookData.Length);
+            }
+            Debug.Log("succeeded to write data for URL:" + url + " with hookDataID:" + hookDataID);
+        }
+
         /*
-            URLに対してのレスポンスをスキャンする。これはデータの採集を目的としている。
+            URLに対してのレスポンスをスキャンする。
+            これはデータの採集を目的としている、、んだが、仕込むのが大変なので、別になくてもいっか、、って感じがある。
         */
         internal static void Scan(string url, byte[] data)
         {
@@ -109,6 +125,10 @@ namespace DashaCore
                 }
                 Debug.Log("succeeded to write data for URL:" + url + " with dataID:" + hookID);
             }
+        }
+        public static void Capture(string url, Func<byte[], (bool, string, byte[])> onHooked)
+        {
+            @this.preHookDict[url] = onHooked;
         }
     }
 }

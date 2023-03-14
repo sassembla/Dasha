@@ -1,0 +1,15 @@
+{
+  "args": {}, 
+  "headers": {
+    "Accept": "*/*", 
+    "Accept-Encoding": "deflate, gzip", 
+    "Appversion": "1.0.0", 
+    "Authorization": "ewogICJhcmdzIjoge30sIAogICJkYXRhIjogInNvbWUgYm9vdCBkYXRhIiwgCiAgImZpbGVzIjoge30sIAogICJmb3JtIjoge30sIAogICJoZWFkZXJzIjogewogICAgIkFjY2VwdCI6ICIqLyoiLCAKICAgICJBY2NlcHQtRW5jb2RpbmciOiAiZGVmbGF0ZSwgZ3ppcCIsIAogICAgIkF1dGhvcml6YXRpb24iOiAiWkdWbSIsIAogICAgIkNvbnRlbnQtTGVuZ3RoIjogIjE0IiwgCiAgICAiQ29udGVudC1UeXBlIjogImFwcGxpY2F0aW9uL29jdGV0LXN0cmVhbSIsIAogICAgIkhvc3QiOiAiaHR0cGJpbi5vcmciLCAKICAgICJVc2VyLUFnZW50IjogIlVuaXR5UGxheWVyLzIwMjEuMy4xOWYxIChVbml0eVdlYlJlcXVlc3QvMS4wLCBsaWJjdXJsLzcuODQuMC1ERVYpIiwgCiAgICAiWC1BbXpuLVRyYWNlLUlkIjogIlJvb3Q9MS02NDBmNGIzOS0zMjU3ZmQyMTdmMDQ3NzkzMmJhNWE5ODgiLCAKICAgICJYLVVuaXR5LVZlcnNpb24iOiAiMjAyMS4zLjE5ZjEiCiAgfSwgCiAgImpzb24iOiBudWxsLCAKICAib3JpZ2luIjogIjExOS4yNDAuNDIuMjA3IiwgCiAgInVybCI6ICJodHRwczovL2h0dHBiaW4ub3JnL3Bvc3QiCn0K", 
+    "Host": "httpbin.org", 
+    "User-Agent": "UnityPlayer/2021.3.19f1 (UnityWebRequest/1.0, libcurl/7.84.0-DEV)", 
+    "X-Amzn-Trace-Id": "Root=1-640fce8f-748c71fe00948f3723dc8ba8", 
+    "X-Unity-Version": "2021.3.19f1"
+  }, 
+  "origin": "49.98.155.25", 
+  "url": "https://httpbin.org/get"
+}

@@ -3010,4 +3010,46 @@ public class HookTests_Miyamasu {
         
         yield return instance.Teardown();
     }
+    [UnityTest] public IEnumerator UseHookThenRemove() {
+        var rec = new Miyamasu.Recorder("HookTests", "UseHookThenRemove");
+        var instance = new HookTests();
+        instance.rec = rec;
+
+        
+        yield return instance.Setup();
+        
+        yield return instance.UseHookThenRemove();
+        rec.MarkAsPassed();
+
+        
+        yield return instance.Teardown();
+    }
+    [UnityTest] public IEnumerator SaveDataThenAddHook() {
+        var rec = new Miyamasu.Recorder("HookTests", "SaveDataThenAddHook");
+        var instance = new HookTests();
+        instance.rec = rec;
+
+        
+        yield return instance.Setup();
+        
+        yield return instance.SaveDataThenAddHook();
+        rec.MarkAsPassed();
+
+        
+        yield return instance.Teardown();
+    }
+    [UnityTest] public IEnumerator SaveDataThenAddHookThenRemove() {
+        var rec = new Miyamasu.Recorder("HookTests", "SaveDataThenAddHookThenRemove");
+        var instance = new HookTests();
+        instance.rec = rec;
+
+        
+        yield return instance.Setup();
+        
+        yield return instance.SaveDataThenAddHookThenRemove();
+        rec.MarkAsPassed();
+
+        
+        yield return instance.Teardown();
+    }
 }
