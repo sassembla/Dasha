@@ -8,15 +8,21 @@ namespace DashaCore
 {
     public class Dasha
     {
-        private const string DASHA_DATA_PATH = "./DashaDataPool";
+        private string DASHA_DATA_PATH;
         private static Dasha @this;
-        private ConcurrentDictionary<string, Func<byte[], (bool, string, byte[])>> preHookDict = new ConcurrentDictionary<string, Func<byte[], (bool, string, byte[])>>();
         private ConcurrentDictionary<string, byte[]> hookDict = new ConcurrentDictionary<string, byte[]>();
 
         static Dasha()
         {
             // 一度だけ発生すればいい初期化処理
             @this = new Dasha();
+#if UNITY_EDITOR
+            // 初期値を使用する。Assetsフォルダの横に出る。
+            @this.DASHA_DATA_PATH = "./DashaDataPool";
+#else
+            // 実機用の保存領域を使用する。
+            @this.DASHA_DATA_PATH = Path.Combine(Application.persistentDataPath, "DashaDataPool");
+#endif
         }
 
 
@@ -42,7 +48,6 @@ namespace DashaCore
 
         internal static void RemoveHook(string url)
         {
-            @this.preHookDict.TryRemove(url, out var s);
             @this.hookDict.TryRemove(url, out var t);
         }
 
@@ -50,7 +55,7 @@ namespace DashaCore
         // この関数自体をテストにも利用する。
         public static string GetDataPathFromDataID(string hookedDataID)
         {
-            return Path.Combine(DASHA_DATA_PATH, hookedDataID);
+            return Path.Combine(@this.DASHA_DATA_PATH, hookedDataID);
         }
 
         // TODO: この関数がconditionalになる。
@@ -76,9 +81,9 @@ namespace DashaCore
         // urlに対するデータを保存する。
         internal static void Save(string hookDataID, string url, int code, Dictionary<string, string> responseHeader, byte[] hookData)
         {
-            if (!Directory.Exists(DASHA_DATA_PATH))
+            if (!Directory.Exists(@this.DASHA_DATA_PATH))
             {
-                Directory.CreateDirectory(DASHA_DATA_PATH);
+                Directory.CreateDirectory(@this.DASHA_DATA_PATH);
             }
 
             var targetDataPath = GetDataPathFromDataID(hookDataID);
@@ -89,46 +94,6 @@ namespace DashaCore
                 sw.BaseStream.Write(hookData, 0, hookData.Length);
             }
             Debug.Log("succeeded to write data for URL:" + url + " with hookDataID:" + hookDataID);
-        }
-
-        /*
-            URLに対してのレスポンスをスキャンする。
-            これはデータの採集を目的としている、、んだが、仕込むのが大変なので、別になくてもいっか、、って感じがある。
-        */
-        internal static void Scan(string url, byte[] data)
-        {
-            if (!@this.preHookDict.ContainsKey(url))
-            {
-                return;
-            }
-
-            if (@this.preHookDict.TryGetValue(url, out var onPrepareHook))
-            {
-                var prepareHookRequest = onPrepareHook(data);
-                var shouldSave = prepareHookRequest.Item1;
-                if (!shouldSave)
-                {
-                    return;
-                }
-
-                var hookID = prepareHookRequest.Item2;
-                var hookData = prepareHookRequest.Item3;
-                var targetDataPath = GetDataPathFromDataID(hookID);
-                if (!Directory.Exists(DASHA_DATA_PATH))
-                {
-                    Directory.CreateDirectory(DASHA_DATA_PATH);
-                }
-
-                using (var sw = new StreamWriter(targetDataPath))
-                {
-                    sw.BaseStream.Write(hookData, 0, hookData.Length);
-                }
-                Debug.Log("succeeded to write data for URL:" + url + " with dataID:" + hookID);
-            }
-        }
-        public static void Capture(string url, Func<byte[], (bool, string, byte[])> onHooked)
-        {
-            @this.preHookDict[url] = onHooked;
         }
     }
 }

@@ -2968,34 +2968,6 @@ public class JWTTests_Miyamasu {
     }
 }
 public class HookTests_Miyamasu {
-    [UnityTest] public IEnumerator SetHookToURL() {
-        var rec = new Miyamasu.Recorder("HookTests", "SetHookToURL");
-        var instance = new HookTests();
-        instance.rec = rec;
-
-        
-        yield return instance.Setup();
-        
-        yield return instance.SetHookToURL();
-        rec.MarkAsPassed();
-
-        
-        yield return instance.Teardown();
-    }
-    [UnityTest] public IEnumerator SetHookToURLThenSaveResult() {
-        var rec = new Miyamasu.Recorder("HookTests", "SetHookToURLThenSaveResult");
-        var instance = new HookTests();
-        instance.rec = rec;
-
-        
-        yield return instance.Setup();
-        
-        yield return instance.SetHookToURLThenSaveResult();
-        rec.MarkAsPassed();
-
-        
-        yield return instance.Teardown();
-    }
     [UnityTest] public IEnumerator UseHookToURL() {
         var rec = new Miyamasu.Recorder("HookTests", "UseHookToURL");
         var instance = new HookTests();

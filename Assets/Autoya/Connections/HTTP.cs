@@ -341,12 +341,10 @@ namespace AutoyaFramework.Connections.HTTP
 
                         if (200 <= responseCode && responseCode <= 299)
                         {
-                            Dasha.Scan(url, bytes);
                             succeeded(connectionId, responseCode, responseHeaders, bytes);
                         }
                         else
                         {
-                            Dasha.Scan(url, bytes);
                             failed(connectionId, responseCode, BackyardSettings.HTTP_CODE_ERROR_SUFFIX + Encoding.UTF8.GetString(bytes), responseHeaders);
                         }
                         break;
@@ -357,7 +355,6 @@ namespace AutoyaFramework.Connections.HTTP
                             responseCode = BackyardSettings.HTTP_NETWORK_ERROR_AND_STATUS_OK_CODE;
                         }
 
-                        Dasha.Scan(url, Encoding.UTF8.GetBytes(request.error));
                         failed(connectionId, responseCode, request.error, responseHeaders);
                         break;
                 }
