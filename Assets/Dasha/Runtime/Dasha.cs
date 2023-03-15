@@ -59,19 +59,29 @@ namespace DashaCore
         }
 
         // TODO: この関数がconditionalになる。
-        // 通信をurlをキーとして奪い、ダミーのレスポンスを返す。
-        internal static bool TryPullHook(string url, params object[] inputs)
+        // 指定URLへのフックが存在している場合trueを返す
+        internal static bool TryHasHook(string url)
         {
             if (!@this.hookDict.ContainsKey(url))
             {
                 return false;
             }
 
-            if (@this.hookDict.TryGetValue(url, out var onHooked))
+            return true;
+        }
+
+        // TODO: この関数がconditionalになる。
+        // 通信をurlをキーとして奪い、ダミーのレスポンスを返す。
+        internal static bool TryPullHook(string url, params object[] inputs)
+        {
+            if (TryHasHook(url))
             {
-                // 畳み込んで実行。
-                onHooked(inputs);
-                return true;
+                if (@this.hookDict.TryGetValue(url, out var onHooked))
+                {
+                    // 畳み込んで実行。
+                    onHooked(inputs);
+                    return true;
+                }
             }
 
             return false;
