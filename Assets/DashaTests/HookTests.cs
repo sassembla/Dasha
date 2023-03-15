@@ -289,4 +289,71 @@ public class HookTests : MiyamasuTestRunner
             );
         }
     }
+
+    // 適当に通信し、結果を得て、それを保存し、hookとして利用する。
+    [MTest]
+    public IEnumerator CaptureResultThenHook()
+    {
+        byte[] expected = null;
+        {
+            var done = false;
+            Autoya.Http_GetByBytes(
+                url,
+                (conId, result) =>
+                {
+                    // レスポンスを保存(この時点で編集したものを保存するとかすると用意として楽)
+                    Dasha.Save(hookedDataID, url, 200, null, result);
+                    expected = result;
+                    done = true;
+                },
+                (conId, code, reason, status) =>
+                {
+                    Fail("失敗するはずないが失敗してる code:" + code + " reason:" + reason);
+                    done = true;
+                }
+            );
+
+            yield return WaitUntil(
+                () => done,
+                () => { throw new TimeoutException("too late"); }
+            );
+        }
+
+        Dasha.AddHook(
+            url,
+            hookedDataID,
+            (data, handles) =>
+            {
+                var successFunc = (Action<string, int, Dictionary<string, string>, byte[]>)handles[0];
+                successFunc(url, 200, new Dictionary<string, string>(), data);
+            }
+        );
+
+        // hook後の通信
+        {
+            var done = false;
+            Autoya.Http_GetByBytes(
+                url,
+                (conId, result) =>
+                {
+                    // バイト列の一致を見る
+                    for (var i = 0; i < result.Length; i++)
+                    {
+                        True(result[i] == expected[i]);
+                    }
+                    done = true;
+                },
+                (conId, code, reason, status) =>
+                {
+                    Fail("失敗するはずないが失敗してる code:" + code + " reason:" + reason);
+                    done = true;
+                }
+            );
+
+            yield return WaitUntil(
+                () => done,
+                () => { throw new TimeoutException("too late"); }
+            );
+        }
+    }
 }

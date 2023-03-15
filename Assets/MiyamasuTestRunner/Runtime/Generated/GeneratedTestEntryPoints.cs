@@ -3024,4 +3024,18 @@ public class HookTests_Miyamasu {
         
         yield return instance.Teardown();
     }
+    [UnityTest] public IEnumerator CaptureResultThenHook() {
+        var rec = new Miyamasu.Recorder("HookTests", "CaptureResultThenHook");
+        var instance = new HookTests();
+        instance.rec = rec;
+
+        
+        yield return instance.Setup();
+        
+        yield return instance.CaptureResultThenHook();
+        rec.MarkAsPassed();
+
+        
+        yield return instance.Teardown();
+    }
 }
