@@ -2,7 +2,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
+using Logger = UnityEngine;
+using System.Diagnostics;
 
 namespace DashaCore
 {
@@ -25,8 +26,8 @@ namespace DashaCore
 #endif
         }
 
-
-        internal static void AddHook(string url, string hookedDataID, Action<byte[], object[]> onHooked)
+        [Conditional("USE_DUMMY_RESPONSE_DASHA")]
+        public static void AddHook(string url, string hookedDataID, Action<byte[], object[]> onHooked)
         {
             byte[] data = null;
             var path = GetDataPathFromDataID(hookedDataID);
@@ -46,7 +47,8 @@ namespace DashaCore
             @this.hookDict[url] = (object[] parameters) => { onHooked(data, parameters); };
         }
 
-        internal static void RemoveHook(string url)
+        [Conditional("USE_DUMMY_RESPONSE_DASHA")]
+        public static void RemoveHook(string url)
         {
             @this.hookDict.TryRemove(url, out var t);
         }
@@ -58,38 +60,19 @@ namespace DashaCore
             return Path.Combine(@this.DASHA_DATA_PATH, hookedDataID);
         }
 
-        // TODO: この関数がconditionalになる。
-        // 指定URLへのフックが存在している場合trueを返す
-        internal static bool TryHasHook(string url)
-        {
-            if (!@this.hookDict.ContainsKey(url))
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        // TODO: この関数がconditionalになる。
-        // 通信をurlをキーとして奪い、ダミーのレスポンスを返す。
-        internal static bool TryPullHook(string url, params object[] inputs)
-        {
-            if (TryHasHook(url))
-            {
-                if (@this.hookDict.TryGetValue(url, out var onHooked))
-                {
-                    // 畳み込んで実行。
-                    onHooked(inputs);
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         // urlに対するデータを保存する。
-        internal static void Save(string hookDataID, string url, int code, Dictionary<string, string> responseHeader, byte[] hookData)
+        [Conditional("USE_DUMMY_RESPONSE_DASHA")]
+        public static void Save(string url, string hookDataID, int code, Dictionary<string, string> responseHeader, byte[] hookData)
         {
+#if !TestHookForDasha
+            if (hookDataID.Contains("/"))
+            {
+                throw new Exception("hookDataID should not contain / , because this will become filename for hookDataFile.");
+            }
+#else
+            Logger.Debug.Assert(!hookDataID.Contains("/"), "hookDataID should not contain / , because this will become filename for hookDataFile.");
+#endif
+
             if (!Directory.Exists(@this.DASHA_DATA_PATH))
             {
                 Directory.CreateDirectory(@this.DASHA_DATA_PATH);
@@ -102,7 +85,45 @@ namespace DashaCore
             {
                 sw.BaseStream.Write(hookData, 0, hookData.Length);
             }
-            Debug.Log("succeeded to write data for URL:" + url + " with hookDataID:" + hookDataID);
+            Logger.Debug.Log("succeeded to write data for URL:" + url + " with hookDataID:" + hookDataID);
+        }
+
+
+        // ここから先はAPIに対して仕掛けるフック実装
+
+        // 指定URLへのフックが存在している場合trueを返す
+        public static bool TryHasHook(string url)
+        {
+#if USE_DUMMY_RESPONSE_DASHA
+            if (!@this.hookDict.ContainsKey(url))
+            {
+                return false;
+            }
+
+            return true;
+#else
+            return false;
+#endif
+        }
+
+        // 通信をurlをキーとして扱い、ダミーのレスポンスを返す。
+        public static bool TryPullHook(string url, params object[] inputs)
+        {
+#if USE_DUMMY_RESPONSE_DASHA
+            if (TryHasHook(url))
+            {
+                if (@this.hookDict.TryGetValue(url, out var onHooked))
+                {
+                    // 畳み込んで実行。
+                    onHooked(inputs);
+                    return true;
+                }
+            }
+
+            return false;
+#else
+            return false;
+#endif
         }
     }
 }

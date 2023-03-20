@@ -1,3 +1,5 @@
+#define TestHookForDasha
+
 using System;
 using System.Collections;
 using AutoyaFramework;
@@ -164,8 +166,8 @@ public class HookTests : MiyamasuTestRunner
 
         // 適当なデータを保存し、その後hookをセット、対応する通信を実行して、結果が書きかわっていることを確認する。
         Dasha.Save(
-            hookedDataID,
             url,
+            hookedDataID,
             200,
             null,
             expected
@@ -213,8 +215,8 @@ public class HookTests : MiyamasuTestRunner
 
         // 適当なデータを保存し、その後hookをセット、対応する通信を実行して、結果が書きかわっていることを確認する。
         Dasha.Save(
-            hookedDataID,
             url,
+            hookedDataID,
             200,
             null,
             expected
@@ -302,7 +304,7 @@ public class HookTests : MiyamasuTestRunner
                 (conId, result) =>
                 {
                     // レスポンスを保存(この時点で編集したものを保存するとかすると用意として楽)
-                    Dasha.Save(hookedDataID, url, 200, null, result);
+                    Dasha.Save(url, hookedDataID, 200, null, result);
                     expected = result;
                     done = true;
                 },
@@ -355,5 +357,21 @@ public class HookTests : MiyamasuTestRunner
                 () => { throw new TimeoutException("too late"); }
             );
         }
+    }
+
+    [MTest]
+    public void HookDataIDShouldNotContainsSlash()
+    {
+        var asserted = false;
+        try
+        {
+            Dasha.Save("some url", "some/name", 200, null, null);
+        }
+        catch (Exception e)
+        {
+            asserted = true;
+        }
+
+        True(asserted, "/を含んでもOKにしてしまっている");
     }
 }
