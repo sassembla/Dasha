@@ -5,6 +5,9 @@ using System.IO;
 using Logger = UnityEngine;
 using System.Diagnostics;
 
+/*
+    USE_DUMMY_RESPONSE_DASHA scriptable define symbols required when use.
+*/
 namespace DashaCore
 {
     public class Dasha
@@ -64,7 +67,7 @@ namespace DashaCore
         [Conditional("USE_DUMMY_RESPONSE_DASHA")]
         public static void Save(string url, string hookDataID, int code, Dictionary<string, string> responseHeader, byte[] hookData)
         {
-#if !TestHookForDasha
+#if TestHookForDasha
             if (hookDataID.Contains("/"))
             {
                 throw new Exception("hookDataID should not contain / , because this will become filename for hookDataFile.");

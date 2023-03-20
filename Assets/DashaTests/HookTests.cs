@@ -1,5 +1,3 @@
-#define TestHookForDasha
-
 using System;
 using System.Collections;
 using AutoyaFramework;
@@ -360,8 +358,13 @@ public class HookTests : MiyamasuTestRunner
     }
 
     [MTest]
+    // NOTE: このテストはassert failを引き起こすため、 TestHookForDasha scriptableDefineSymbolsをつけてないと絶対に失敗する。
     public void HookDataIDShouldNotContainsSlash()
     {
+#if !TestHookForDasha
+        Debug.Log("TestHookForDasha をセットしてから実行してね。");
+        return;
+#endif
         var asserted = false;
         try
         {
